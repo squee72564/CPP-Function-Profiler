@@ -1,6 +1,6 @@
 #pragma once
 
-// Comment this out or set to 0 to disable
+// Comment this out or set to zero to disable
 #define ENABLE_API_PROFILER 1
 
 #if ENABLE_API_PROFILER
@@ -8,8 +8,8 @@
 #if defined(_WIN32) || defined(_WIN64)
 
 #define API_PROFILER_WINDOWS
-#include <profileapi.h>         // QueryPerformanceCounter & QueryPerformanceFrequency
-#include <winnt.h>              // MemoryBarrier & LARGE_INTEGER
+#include <profileapi.h>         // QueryPerformanceCounter and QueryPerformanceFrequency
+#include <winnt.h>              // MemoryBarrier and LARGE_INTEGER
 #include <processthreadsapi.h>  // GetCurrentThreadId
 
 #else
