@@ -1,6 +1,9 @@
 #pragma once
 
+// Comment this out or set to 0 to disable
 #define ENABLE_API_PROFILER 1
+
+#if ENABLE_API_PROFILER
 
 #if defined(_WIN32) || defined(_WIN64)
 
@@ -18,8 +21,6 @@
 
 #include <cstdio>
 #include <pthread.h>
-
-#if ENABLE_API_PROFILER
 
 #ifdef API_PROFILER_WINDOWS
 
