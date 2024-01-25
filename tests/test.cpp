@@ -1,6 +1,7 @@
 #include "../profiler.h"
 #include <iostream>
 #include <thread>
+#include <atomic>
 
 DEFINE_API_PROFILER(__Short);
 DEFINE_API_PROFILER(__Long);
@@ -12,12 +13,14 @@ int __Short()
     
     long long i = 0;
     
+    int a = i;
+    
     while (i < 10) {
-        int a = 1;
+        a += i;
         i++;
     }
     
-    return i;
+    return a;
 }
 
 // Arbitrary longer function
@@ -35,7 +38,6 @@ int __Long()
         a[i] = i;
         b[i] = i * i;
         
-        double j = 0.0f;
         for (int k = 0; k < 20; k++) {
             if (b[i] != 0) {
                 c[i] += a[i] / b[i];
@@ -67,18 +69,20 @@ int main(int argc, char* argv[])
     }
 	
 	std::thread threads[numThreads];
+
+    std::atomic<long> total(0);
 	
-    long long i = 0;
     
     for (int i = 0; i < numThreads; ++i)
     {
-        threads[i] = std::thread([]() {
-            long long i = 0;
-            while (i < 5500000)
+        threads[i] = std::thread([&total]() {
+            long long j = 0;
+            while (j < 5500000)
             {
                 int x = __Short();
                 int y = __Long();
-                i++;
+                total += x + y;
+                j++;
             }
         });
     }
@@ -88,7 +92,7 @@ int main(int argc, char* argv[])
         threads[i].join();
     }
     
-    printf("Finished");
+    printf("Finished with total: %ld\n", total.load());
 
     return 0;
 }
