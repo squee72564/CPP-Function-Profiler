@@ -154,7 +154,7 @@ private:
       m_threadInfo->name,
       measured,
       interval,
-      100.0 * measured / interval,
+      100.0f * measured / interval,
       m_threadInfo->hitCount);
 
     m_threadInfo->lastReportTime = end;
