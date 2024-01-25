@@ -150,7 +150,7 @@ private:
     double measured = m_threadInfo->accumulator;
 
     printf("TID 0x%ld time spent in \"%s\": %.0f/%.0f microsec %.1f%% %lldx\n",
-      pthread_self(),
+      (long) pthread_self(),
       m_threadInfo->name,
       measured,
       interval,
@@ -168,10 +168,10 @@ long long APIProfiler::s_reportInterval = 0;
 
 #endif //API_PROFILER_UNIX
 
+#ifdef API_PROFILER_WINDOWS
+
 #define DECLARE_API_PROFILER(name)\
 	extern thread_local APIProfiler::ThreadInfo __APIProfiler_##name;
-
-#ifdef API_PROFILER_WINDOWS
 
 #define DEFINE_API_PROFILER(name)\
 	thread_local APIProfiler::ThreadInfo __APIProfiler_##name = { 0, 0, 0, #name };
@@ -180,8 +180,11 @@ long long APIProfiler::s_reportInterval = 0;
 
 #ifdef API_PROFILER_UNIX
 
+#define DECLARE_API_PROFILER(name)\
+	extern __thread APIProfiler::ThreadInfo __APIProfiler_##name;
+
 #define DEFINE_API_PROFILER(name)\
-	thread_local APIProfiler::ThreadInfo __APIProfiler_##name = { { 0, 0 }, 0, 0, #name };
+	__thread APIProfiler::ThreadInfo __APIProfiler_##name = { { 0, 0 }, 0, 0, #name };
 	
 #endif //API_PROFILER_UNIX
 
