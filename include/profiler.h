@@ -26,13 +26,30 @@
 class APIProfiler {
 
 public:
+
   struct ThreadInfo {
     INT64 lastReportTime;
     INT64 accumulator;
     INT64 hitCount;
     const char * name;
   };
+  
+  inline APIProfiler(ThreadInfo * threadInfo) {
+    LARGE_INTEGER start;
+    QueryPerformanceCounter( & start);
+    m_start = start.QuadPart;
+    m_threadInfo = threadInfo;
+  }
 
+  inline ~APIProfiler() {
+    LARGE_INTEGER end;
+    QueryPerformanceCounter(&end);
+    m_threadInfo->accumulator += (end.QuadPart - m_start);
+    m_threadInfo->hitCount++;
+    if (end.QuadPart - m_threadInfo->lastReportTime > s_reportInterval)
+      Flush(end.QuadPart);
+  }
+  
 private:
 
   ThreadInfo * m_threadInfo;
@@ -69,73 +86,28 @@ private:
     m_threadInfo->accumulator = 0;
     m_threadInfo->hitCount = 0;
   }
-
-public:
-  
-  inline APIProfiler(ThreadInfo * threadInfo) {
-    LARGE_INTEGER start;
-    QueryPerformanceCounter( & start);
-    m_start = start.QuadPart;
-    m_threadInfo = threadInfo;
-  }
-
-  inline ~APIProfiler() {
-    LARGE_INTEGER end;
-    QueryPerformanceCounter(&end);
-    m_threadInfo->accumulator += (end.QuadPart - m_start);
-    m_threadInfo->hitCount++;
-    if (end.QuadPart - m_threadInfo->lastReportTime > s_reportInterval)
-      Flush(end.QuadPart);
-  }
 };
 
+// Initialize static class members
 float APIProfiler::s_ooFrequency = 0;
 INT64 APIProfiler::s_reportInterval = 0;
+
 #endif //API_PROFILER_WINDOWS
 
 #ifdef API_PROFILER_UNIX
 
 class APIProfiler {
 
-  public: struct ThreadInfo {
+public:
+
+  struct ThreadInfo {
     timespec lastReportTime;
     long long accumulator;
     long long hitCount;
     const char * name;
   };
 
-  private: ThreadInfo * m_threadInfo;
-  timespec m_start;
-  static long long s_reportInterval;
-  void Flush(timespec end) {
-    if (s_reportInterval == 0) {
-      s_reportInterval = static_cast < long long > (1e6 * 1.0f);
-    }
-
-    if (m_threadInfo->lastReportTime.tv_sec == 0 && m_threadInfo->lastReportTime.tv_nsec == 0) {
-      m_threadInfo->lastReportTime = m_start;
-      return;
-    }
-
-    double interval = static_cast < double > ((end.tv_sec - m_threadInfo->lastReportTime.tv_sec) * 1e9 +
-      (end.tv_nsec - m_threadInfo->lastReportTime.tv_nsec)) / 1000.0f;
-
-    double measured = m_threadInfo->accumulator;
-
-    printf("TID %ld time spent in \"%s\": %.0f/%.0f microsec %.1f%% %lldx\n",
-      pthread_self(),
-      m_threadInfo->name,
-      measured,
-      interval,
-      100.0 * measured / interval,
-      m_threadInfo->hitCount);
-
-    m_threadInfo->lastReportTime = end;
-    m_threadInfo->accumulator = 0;
-    m_threadInfo->hitCount = 0;
-  }
-
-  public: inline APIProfiler(ThreadInfo * threadInfo) {
+  inline APIProfiler(ThreadInfo * threadInfo) {
     clock_gettime(CLOCK_MONOTONIC, &m_start);
     m_threadInfo = threadInfo;
   }
@@ -154,9 +126,45 @@ class APIProfiler {
     if (((endNanoSec - lastReportNanoSec) / 1000 LL) > s_reportInterval)
       Flush(end);
   }
+
+private:
+
+  ThreadInfo * m_threadInfo;
+  timespec m_start;
+  static long long s_reportInterval;
+  
+  void Flush(timespec end) {
+    if (s_reportInterval == 0) {
+      s_reportInterval = static_cast < long long > (1e6 * 1.0f);
+    }
+
+    if (m_threadInfo->lastReportTime.tv_sec == 0 && m_threadInfo->lastReportTime.tv_nsec == 0) {
+      m_threadInfo->lastReportTime = m_start;
+      return;
+    }
+
+    double interval = static_cast < double > ((end.tv_sec - m_threadInfo->lastReportTime.tv_sec) * 1e9 +
+      (end.tv_nsec - m_threadInfo->lastReportTime.tv_nsec)) / 1000.0f;
+
+    double measured = m_threadInfo->accumulator;
+
+    printf("TID 0x%ld time spent in \"%s\": %.0f/%.0f microsec %.1f%% %lldx\n",
+      pthread_self(),
+      m_threadInfo->name,
+      measured,
+      interval,
+      100.0 * measured / interval,
+      m_threadInfo->hitCount);
+
+    m_threadInfo->lastReportTime = end;
+    m_threadInfo->accumulator = 0;
+    m_threadInfo->hitCount = 0;
+  }
 };
 
+// Initialize static class members
 long long APIProfiler::s_reportInterval = 0;
+
 #endif //API_PROFILER_UNIX
 
 #define DECLARE_API_PROFILER(name)\
