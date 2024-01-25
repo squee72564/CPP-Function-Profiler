@@ -140,7 +140,7 @@ class APIProfiler {
     m_threadInfo = threadInfo;
   }
 
-  inline~APIProfiler() {
+  inline ~APIProfiler() {
     timespec end;
     clock_gettime(CLOCK_MONOTONIC, &end);
 
