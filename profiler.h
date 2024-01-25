@@ -5,9 +5,9 @@
 #if defined(_WIN32) || defined(_WIN64)
 
 #define API_PROFILER_WINDOWS
-#include <profileapi.h>			// QueryPerformanceCounter & QueryPerformanceFrequency
-#include <winnt.h>				// MemoryBarrier & LARGE_INTEGER
-#include <processthreadsapi.h>	// GetCurrentThreadId
+#include <profileapi.h>         // QueryPerformanceCounter & QueryPerformanceFrequency
+#include <winnt.h>              // MemoryBarrier & LARGE_INTEGER
+#include <processthreadsapi.h>  // GetCurrentThreadId
 
 #else
 
@@ -168,19 +168,19 @@ long long APIProfiler::s_reportInterval = 0;
 #endif //API_PROFILER_UNIX
 
 #define DECLARE_API_PROFILER(name)\
-	extern thread_local APIProfiler::ThreadInfo __APIProfiler_ ##name;
+	extern thread_local APIProfiler::ThreadInfo __APIProfiler_##name;
 
 #ifdef API_PROFILER_WINDOWS
 
 #define DEFINE_API_PROFILER(name)\
-	thread_local APIProfiler::ThreadInfo __APIProfiler_ ##name = { 0, 0, 0, #name };
+	thread_local APIProfiler::ThreadInfo __APIProfiler_##name = { 0, 0, 0, #name };
 	
 #endif //API_PROFILER_WINDOWS
 
 #ifdef API_PROFILER_UNIX
 
 #define DEFINE_API_PROFILER(name)\
-	thread_local APIProfiler::ThreadInfo __APIProfiler_ ##name = {{0,0},0,0,#name};
+	thread_local APIProfiler::ThreadInfo __APIProfiler_##name = { { 0, 0 }, 0, 0, #name };
 	
 #endif //API_PROFILER_UNIX
 
@@ -188,7 +188,7 @@ long long APIProfiler::s_reportInterval = 0;
 #define TOKENPASTE(x, y) TOKENPASTE2(x, y)
 
 #define API_PROFILER(name)\
-APIProfiler TOKENPASTE(__APIProfiler_ ##name, __LINE__)( & __APIProfiler_ ##name)
+    APIProfiler TOKENPASTE(__APIProfiler_##name, __LINE__)(&__APIProfiler_##name)
 
 #else // Macros evaluate to nothing when profiler disabled
 
