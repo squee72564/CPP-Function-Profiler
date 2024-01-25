@@ -121,10 +121,10 @@ public:
     long long endNanoSec = end.tv_sec * 1e9 + end.tv_nsec;
     long long lastReportNanoSec = m_threadInfo->lastReportTime.tv_sec * 1e9 + m_threadInfo->lastReportTime.tv_nsec;
 
-    m_threadInfo->accumulator += (endNanoSec - startNanoSec) / 1000 LL;
+    m_threadInfo->accumulator += (endNanoSec - startNanoSec) / 1000LL;
     m_threadInfo->hitCount++;
 
-    if (((endNanoSec - lastReportNanoSec) / 1000 LL) > s_reportInterval)
+    if (((endNanoSec - lastReportNanoSec) / 1000LL) > s_reportInterval)
       Flush(end);
   }
 
