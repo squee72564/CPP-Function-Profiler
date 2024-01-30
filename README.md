@@ -1,7 +1,9 @@
 
 # CPP-Multithreaded-Profiler
 
-This is a header only C++ tool to help profile multi-threaded applications. It is compatible with Windows OS and is being extended to work on Mac/Linux.
+This is a header only C++ tool to help profile multi-threaded applications. It is compatible with Windows/Mac/Linux.
+
+Some functionality requires C++17 to compile correctly, but `Profiler.hpp` can be modified to work with earlier versions.
 
 ## Installation
 1. `git clone https://github.com/squee72564/CPP-Multithreading-Profiler.git` to download this repository
