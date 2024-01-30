@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PROFILER_H
+#define PROFILER_H
 
 // Comment this out or set to zero to disable
 #define ENABLE_API_PROFILER 1
@@ -90,8 +91,8 @@ private:
 };
 
 // Initialize static class members
-float APIProfiler::s_ooFrequency = 0;
-INT64 APIProfiler::s_reportInterval = 0;
+inline float APIProfiler::s_ooFrequency = 0;
+inline INT64 APIProfiler::s_reportInterval = 0;
 
 #endif //API_PROFILER_WINDOWS
 
@@ -164,7 +165,7 @@ private:
 };
 
 // Initialize static class members
-long long APIProfiler::s_reportInterval = 0;
+inline long long APIProfiler::s_reportInterval = 0;
 
 #endif //API_PROFILER_UNIX
 
@@ -201,3 +202,5 @@ long long APIProfiler::s_reportInterval = 0;
 #define API_PROFILER(name)
 
 #endif // ENABLE_API_PROFILER
+
+#endif //PROFILER_H

@@ -1,4 +1,4 @@
-#include "../profiler.h"
+#include "../Profiler.hpp"
 #include <iostream>
 #include <thread>
 #include <atomic>
